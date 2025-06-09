@@ -15,7 +15,7 @@ public  class Pawn extends Pieces{
     public int getDirection(){
         return direction;
     }
-    
+    //hii
         //seting instant variables
         //used for pringint board,us this and then get color to make a piece
     public String getPiece(){
@@ -137,7 +137,7 @@ public  class Pawn extends Pieces{
             board[super.row+(howFar*direction)][super.column] = new Pawn(super.color, super.row+(howFar*direction), super.column, false);
         }
         board[super.row][super.column] = new Empty(super.row, super.column);
-        board[1][8].set(board,super.color, super.row+(howFar*direction), super.column);
+        board[1][8] = new Pawn(super.color, super.row+(howFar*direction), super.column, false);
     }
     
     public void move2(Pieces[][] board, int colDirection){
@@ -155,7 +155,7 @@ public  class Pawn extends Pieces{
         //enpassant check
         if( board[lastMove.getRow()][lastMove.getCol()] instanceof Pawn && lastMove.getRow() == super.row && !board[lastMove.getRow()][lastMove.getCol()].getColor().equals(super.color) && (lastMove.getCol() == super.column - 1 || lastMove.getCol() == super.column + 1 )){
             board[super.row][super.column + colDirection] = new Empty(super.row, super.column);
-        board[1][8].set(board,super.color, super.row+direction, super.column + colDirection);
         }
+        board[1][8] = new Pawn(super.color, super.row+direction, super.column + colDirection, false);
     }
 }

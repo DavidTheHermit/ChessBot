@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.Scanner;
 public class Game {
     public Watch watch;
@@ -21,13 +20,10 @@ public class Game {
         int turns = 0;
         int total = 0;
         //checker starts black so white starts
-        int[] mod1 = new int[58];
-        for(int i = 0; i < 58; i++){
-            mod1[i]=(int)(Math.random() * 100);
-        }
+        int[] mod1 = {-72, 27, 42, 33, 27, -9, -4, -9, -26, -43, 82, -54, -71, 19, -33, -59, -50, 2, 22, -34, 63, -22, -23, -51, 96, 24, -26, -25, -18, 15, 58, 3, -12, 82, 34, 2, 19, 3, -69, 39, 18, 17, -46, 76, 8, -17, -40, -52, -27, -7, 47, -12, 45, 14, -21, -54, -80, 13};
         int[] mod2 = new int[58];
         for(int i = 0; i < 58; i++){
-            mod2[i]=(int)(Math.random() * 100)-50;
+            mod2[i]=mod1[i]+(int)(Math.random() * 100)-50;
         }
         while (kingsSafe){
             turns+=1;
@@ -44,22 +40,41 @@ public class Game {
             //for (int i = 0; i < list.length; i++){
             //    System.out.println("["+list[i][0]+", "+list[i][1]+", "+list[i][2]+", "+list[i][3]+"]");
             //}
-            //int rand = (int)(Math.random() * list.length);
+            int rand = (int)(Math.random() * list.length);
             //System.out.println("["+list[rand][0]+", "+list[rand][1]+", "+list[rand][2]+", "+list[rand][3]+"]");
-            System.out.println("# of moves"+list.length);
-            //move = list[rand][0]+" "+list[rand][1]+" "+list[rand][2]+" "+list[rand][3];
+            //System.out.println("# of moves"+list.length);
+            move = list[rand][0]+" "+list[rand][1]+" "+list[rand][2]+" "+list[rand][3];
             //move = input.nextLine();
             // int int direction distance
             //BotTools timesCalled = BotTools();
-            int[] botMove;
-            if (curColor.equals("B")){
-                botMove = BotTools.gradeStateDepth(board, mod1, 2, true);//mod 1 is white
-            }else{
-                botMove = BotTools.gradeStateDepth(board, mod2, 2, true);
+            if (false){
+                int[] botMove;
+                int depth = 2;
+                if (curColor.equals("B")){
+                    if (turns > 50){
+                        depth = 3;
+                        if (turns > 100){
+                            depth = 4;
+                        }
+                    }
+                    botMove = BotTools.gradeStateDepth(board, mod1, depth, true);//mod 1 is white
+                    //move = botMove[0]+" "+botMove[1]+" "+botMove[2]+" "+botMove[3];
+                    //System.out.println("evaluation is: "+"["+botMove[0]+" "+botMove[1]+" "+botMove[2]+" "+botMove[3]+"] "+botMove[4]);
+                }else{
+                    //white tuah move
+                    //move = input.nextLine();
+                    if (turns > 50){
+                        depth = 3;
+                        if (turns > 100){
+                            depth = 4;
+                        }
+                    }
+                    botMove = BotTools.gradeStateDepth(board, mod2, depth, true);
+                }
+                move = botMove[0]+" "+botMove[1]+" "+botMove[2]+" "+botMove[3];
+                System.out.println("evaluation is: "+"["+botMove[0]+" "+botMove[1]+" "+botMove[2]+" "+botMove[3]+"] "+botMove[4]);
+                System.out.println("calls: "+BotTools.getCalls());
             }
-            move = botMove[0]+" "+botMove[1]+" "+botMove[2]+" "+botMove[3];
-            System.out.println("evaluation is: "+"["+botMove[0]+" "+botMove[1]+" "+botMove[2]+" "+botMove[3]+"] "+botMove[4]);
-            System.out.println("calls: "+BotTools.getCalls());
             //System.out.println(BotTools.evaluation(board, mod));
             String[] moveList = move.split(" ");
             computerTakeTurn(Integer.parseInt(moveList[0]), Integer.parseInt(moveList[1]), Integer.parseInt(moveList[2]), Integer.parseInt(moveList[3]));
@@ -76,9 +91,16 @@ public class Game {
                     break;
                 }
             }
-            if (!kingsSafe||(turns > 6 && board[1][8].getRow() == board[5][8].getRow() && board[1][8].getCol() == board[5][8].getCol())){
+            //this ensures that 3 fold repition stops the game
+            if(turns > 6 &&board[2][8].getClass().equals(board[6][8].getClass())&& board[2][8].getRow() == board[6][8].getRow() && board[2][8].getCol() == board[6][8].getCol()&& board[1][8].getClass().equals(board[5][8].getClass())&& board[1][8].getRow() == board[5][8].getRow() && board[1][8].getCol() == board[5][8].getCol()){
+                System.out.println("it is a draw");
+                kingsSafe = false;
+                break;
+            }
+            
+            if (!kingsSafe){
                 System.out.println(curColor+" has won");
-                kingsSafe = false;//this ensures that 3 fold repition stops the game
+                
             }
             watch.stop();
             total+=watch.getElapsedTimeMicros();
@@ -99,6 +121,11 @@ public class Game {
     //should a=keep asking for proper cords if false is returned
     public boolean takeTurn(int row, int col, int direction, int distance){
         Pieces piece = board[row][col];
+        board[6][8] = board[5][8].getCopy();
+        board[5][8] = board[4][8].getCopy();
+        board[4][8] = board[3][8].getCopy();
+        board[3][8] = board[2][8].getCopy();
+        board[2][8] = board[1][8].getCopy();
         if (piece.getColor().equals("-")){
             return false;
         }
@@ -151,6 +178,11 @@ public class Game {
 
     public static boolean computerTakeTurn(Pieces [][] board,int row, int col, int direction, int distance){
         Pieces piece = board[row][col];
+        board[6][8] = board[5][8].getCopy();
+        board[5][8] = board[4][8].getCopy();
+        board[4][8] = board[3][8].getCopy();
+        board[3][8] = board[2][8].getCopy();
+        board[2][8] = board[1][8].getCopy();
         if (piece instanceof Pawn){
             //attack 
             //pawn captures, Distance needs to be -1 or 1 and direction needs to be odd
@@ -185,6 +217,11 @@ public class Game {
     }
     public boolean computerTakeTurn(int row, int col, int direction, int distance){
         Pieces piece = board[row][col];
+        board[6][8] = board[5][8].getCopy();
+        board[5][8] = board[4][8].getCopy();
+        board[4][8] = board[3][8].getCopy();
+        board[3][8] = board[2][8].getCopy();
+        board[2][8] = board[1][8].getCopy();
         if (piece instanceof Pawn){
             //attack 
             //pawn captures, Distance needs to be -1 or 1 and direction needs to be odd
@@ -215,6 +252,7 @@ public class Game {
             ((Queen) board[row][col]).move1(board, direction, distance);
             return true;
         }
+        
         return false;
     }
 }

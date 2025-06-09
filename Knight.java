@@ -130,8 +130,7 @@ public class Knight extends Pieces{
         //check if spot is valid
         board[super.row][super.column] = new Empty(super.row, super.column);
         board[super.row + longRow][super.column + longCol] = new Knight(super.color, super.row + longRow,super.column + longCol);
-        board[1][8].set(board,super.color,  super.row + longRow,super.column + longCol);
-    }
+        board[1][8] = new Knight(super.color, super.row + longRow, super.column + longCol);    }
     
     //NSEW and then {-1, 1}
     

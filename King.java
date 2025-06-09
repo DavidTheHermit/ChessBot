@@ -127,7 +127,7 @@ public class King extends Pieces{
             board[locKing][3] = new Rook(super.color,locKing, 3, false);
         }
         canCastle = false;
-        board[1][8].set(board,super.color, super.row+rowD, super.column+colD);
+        board[1][8] = new King(super.color, super.row+rowD, super.column+colD, false);
         
     }
 }

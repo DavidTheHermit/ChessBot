@@ -16,7 +16,7 @@ public class BotTools {
         //}
         boolean maximize;
         if(depth == 0){
-            return new int[] { BotTools.evaluation(board, mod) };
+            return new int[] {0,0,0,0, BotTools.evaluation(board, mod) };
         }else{
             String color = "B";
             maximize = false;
@@ -25,22 +25,22 @@ public class BotTools {
                maximize = true;
             }
             int[][] branches = Moves.getAllMoves(board, color);
+            if (branches.length == 0){
+                //if there are no moves, then return the evaluation of the board
+                return new int[] {0,0,0,0, BotTools.evaluation(board, mod) };
+            }
             int[]evalves = new int[branches.length];
+            int bestMoveIndex = 0;
             for (int i = 0; i < branches.length; i++){
                 Pieces[][] newBoard = Moves.deepCopy(board);
                 Game.computerTakeTurn(newBoard,branches[i][0],branches[i][1],branches[i][2],branches[i][3]);
-                evalves[i] = gradeStateDepth(newBoard, mod, depth - 1, false)[0];
-            }
-            int bestMoveIndex = 0;
-            for (int i = 1; i < branches.length; i++){
-                if((maximize&&evalves[i] >= evalves[bestMoveIndex]) || (!maximize&&evalves[i] < evalves[bestMoveIndex])){
+                evalves[i] = gradeStateDepth(newBoard, mod, depth - 1, false)[4];
+                if((maximize&&evalves[i] >= evalves[bestMoveIndex]) || (!maximize&&evalves[i] <= evalves[bestMoveIndex])){
                     bestMoveIndex = i;
                 }
             }
             int[] returningObj = new int[5];
-            for(int i = 0; i < 4; i++){
-                returningObj[i] = branches[bestMoveIndex][i];
-            }
+            System.arraycopy(branches[bestMoveIndex], 0, returningObj, 0, 4);
             returningObj[4] = evalves[bestMoveIndex];
             return returningObj;
         }
@@ -63,15 +63,17 @@ public class BotTools {
         //3 fold repition is not being correctly identifies
         
         boolean kingsSafe;
-        if(board[1][8].getColor().equals("B")){
+        if(board[1][8].getColor().equals("B")){//meaning its white turn
             kingsSafe = Moves.getMoves(board, "B");
-            if ((board[1][8].getRow() == board[5][8].getRow() && board[1][8].getCol() == board[5][8].getCol())||(!kingsSafe && Moves.isKingSafe(board, "B"))||Moves.checkIfOnlyKings(board)){
-                return -999999;
+            if ((board[2][8].getClass().equals(board[6][8].getClass())&& board[2][8].getRow() == board[6][8].getRow() && board[2][8].getCol() == board[6][8].getCol()&& board[1][8].getClass().equals(board[5][8].getClass())&& board[1][8].getRow() == board[5][8].getRow() && board[1][8].getCol() == board[5][8].getCol())||(!kingsSafe && Moves.isKingSafe(board, "B"))||Moves.checkIfOnlyKings(board)){
+                //System.out.println("Helppp");
+                return -999990;
             }
         }else{
             kingsSafe = Moves.getMoves(board, "W");
-            if ((board[1][8].getRow() == board[5][8].getRow() && board[1][8].getCol() == board[5][8].getCol())||(!kingsSafe && Moves.isKingSafe(board, "W"))||Moves.checkIfOnlyKings(board)){
-                return 999999;
+            if ((board[2][8].getClass().equals(board[6][8].getClass())&& board[2][8].getRow() == board[6][8].getRow() && board[2][8].getCol() == board[6][8].getCol()&& board[1][8].getClass().equals(board[5][8].getClass())&& board[1][8].getRow() == board[5][8].getRow() && board[1][8].getCol() == board[5][8].getCol())||(!kingsSafe && Moves.isKingSafe(board, "W"))||Moves.checkIfOnlyKings(board)){
+                //System.out.println("Helppp");
+                return 999990;
             }
         }
         if (!kingsSafe){

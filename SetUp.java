@@ -45,7 +45,7 @@ public class SetUp {
         board[2][8] = new King("B",0, 0,true);
         board[3][8] = new King("B",0, 0,true);
         for (int i = 2; i<7; i++){
-            board[i][8]= board[7][8];
+            board[i][8]= new King("B",i, i,true);
         }
     }
     public static void printBoard(Pieces[][] board){

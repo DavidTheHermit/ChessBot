@@ -63,6 +63,6 @@ public class Bishop extends Pieces{
         }
         board[super.row+rowD][super.column+colD] = new Bishop(super.color, super.row+rowD, super.column+colD);
         board[super.row][super.column] = new Empty(super.row, super.column);
-        board[1][8].set(board,super.color, super.row+rowD, super.column+colD);
+        board[1][8] = new Bishop(super.color, super.row+rowD, super.column+colD);
     }
 }

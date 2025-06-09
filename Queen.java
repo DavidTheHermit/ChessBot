@@ -50,20 +50,27 @@ public class Queen extends Pieces{
                     colD = 1;
             }
         }
-        if (maxD == 0){
+        if(maxD == 0){
             return new int[0];
         }
         int[] arr = new int[maxD];
-        //System.out.println(maxD+" direction is "+direction);
-        for (int currentDistance = 1; currentDistance<maxD+1; currentDistance++){
+        board[super.row][super.column] = new Empty(super.row, super.column);
+        for (int currentDistance = 1; currentDistance<maxD; currentDistance++){
             board[super.row+rowD*currentDistance][super.column+colD*currentDistance] = new Queen(super.color, super.row+rowD*currentDistance, super.column+colD*currentDistance);
-            board[super.row][super.column] = new Empty(super.row, super.column);
             if(Moves.isKingSafe(board, super.color)){
-                    arr[currentDistance-1] = currentDistance;
+                arr[currentDistance-1] = currentDistance;
             }
             //resets the board for next check
             board[super.row+rowD*currentDistance][super.column+colD*currentDistance] = new Empty( super.row+rowD*currentDistance, super.column+colD*currentDistance);
         }
+        //this is for the last distance and is so that a pices that would be normally erased isnt
+        Pieces copy = board[super.row+rowD*maxD][super.column+colD*maxD].getCopy();
+        board[super.row+rowD*maxD][super.column+colD*maxD] = new Queen(super.color, super.row+rowD*maxD, super.column+colD*maxD);
+        if(Moves.isKingSafe(board, super.color)){
+            arr[maxD-1] = maxD;
+        }
+        board[super.row+rowD*maxD][super.column+colD*maxD] = copy;
+
         board[super.row][super.column] = new Queen(super.color, super.row, super.column);
         return Moves.cleanZeros(arr);
     }
@@ -97,7 +104,7 @@ public class Queen extends Pieces{
         //reg code
         board[super.row+rowD][super.column+colD] = new Queen(super.color, super.row+rowD, super.column+colD);
         board[super.row][super.column] = new Empty(super.row, super.column);
-        board[1][8].set(board, super.color, super.row+rowD, super.column+colD);
+        board[1][8] = new Queen(super.color, super.row+rowD, super.column+colD);
     }
     
 }
