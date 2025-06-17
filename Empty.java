@@ -1,10 +1,10 @@
 public class Empty extends Pieces{
     public Empty(int row, int column){
-        super("-", row, column); 
+        super('O', row, column); 
     }
     //used for pringint board,us this and then get color to make a piece
-    public String getPiece(){
-        return "-";
+    public char getPiece(){
+        return 'O';
     }
     public static boolean canMove(){
         return false;

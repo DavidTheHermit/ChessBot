@@ -1,12 +1,14 @@
+import java.util.ArrayList;
+
 public class Knight extends Pieces{
     //instant variables of subclass
-    public Knight (String color, int row, int column){
+    public Knight (char color, int row, int column){
         super(color,row,column);
         //seting instant variables
     }
     //used for pringint board,us this and then get color to make a piece
-    public String getPiece(){
-        return "N";
+    public char getPiece(){
+        return 'N';
     }
     @Override
     public Pieces getCopy() {
@@ -76,7 +78,7 @@ public class Knight extends Pieces{
         Pieces newKnight;
         moveToRow = super.row + longRow;
         moveToCol = super.column + longCol;
-        if (moveToRow < 8 && moveToRow > -1 && moveToCol > -1 && moveToCol < 8 && (board[moveToRow][moveToCol].getPiece().equals("-") || !board[moveToRow][moveToCol].getColor().equals(super.color))){
+        if (moveToRow < 8 && moveToRow > -1 && moveToCol > -1 && moveToCol < 8 && (board[moveToRow][moveToCol].getPiece() == 'O' || board[moveToRow][moveToCol].getColor() != super.color)){
             board[moveToRow][moveToCol] = new Knight(super.color,moveToRow, moveToCol);
             if(Moves.isKingSafe(board, super.color)){
                 board[super.row][super.column] = new Knight(super.color,super.row, super.column);
@@ -87,7 +89,7 @@ public class Knight extends Pieces{
         return new int[0];
     }
     
-    public void move1(Pieces[][] board, int direction){
+    public void move1(Pieces[][] board, ArrayList<int[]>  moveHistory, int direction){
         //need to check all places between when torpedo
         int longRow;
         int longCol;
@@ -129,9 +131,21 @@ public class Knight extends Pieces{
         }
         //check if spot is valid
         board[super.row][super.column] = new Empty(super.row, super.column);
+        char capturedPiece = board[super.row+longRow][super.column+longCol].getPiece();
         board[super.row + longRow][super.column + longCol] = new Knight(super.color, super.row + longRow,super.column + longCol);
-        board[1][8] = new Knight(super.color, super.row + longRow, super.column + longCol);    }
-    
+        int intColor = super.color == 'B' ? -1 : 1;
+        int capturedPieceInt = switch (capturedPiece) {
+            case 'O' -> 0; // Empty
+            case 'P' -> 1;
+            case 'R' -> 2;
+            case 'N' -> 3;
+            case 'B' -> 4;
+            case 'K' -> 5;
+            case 'Q' -> 6; // Queen or unknown defaults to 6
+            default -> throw new UnsupportedOperationException("Captured piece is not a valid chess piece");
+        };
+        moveHistory.add(new int[]{3,intColor, super.row, super.column,direction, 0, capturedPieceInt});
+    }
     //NSEW and then {-1, 1}
     
 }

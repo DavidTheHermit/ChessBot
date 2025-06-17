@@ -1,9 +1,11 @@
+import java.util.ArrayList;
+
 public abstract class Pieces {
     //instant variables of superclass
-    public String color = "-";
+    public char color = 'O';
     public int row;//y-top is 0
     public int column;//x-left is 0
-    public Pieces(String color, int row, int column){
+    public Pieces(char color, int row, int column){
         this.color = color;
         this.row = row;
         this.column = column;
@@ -15,42 +17,33 @@ public abstract class Pieces {
     }
 
     public int getDirection(){
-        return 100;
+        throw new UnsupportedOperationException("This should not have been called, please specify the subclass you want");
     }
 
     public abstract Pieces getCopy();
     //lots of static methods
     //used for pringint board,us this and then get color to make a piece
-    public String getColor(){
+    public char getColor(){
         return color;
     }
     
     //used for 7,9 and helps determin last move
-    public void setColor(String color){
+    public void setColor(char color){
         this.color = color;
     }
     //for the rook when trying to see if it can castle
     public boolean getCanCastle(){
-        return false;
+        throw new UnsupportedOperationException("This should not have been called, please specify the subclass you want");
     }
     
-    public String getPiece(){
-        return "-";
+    public char getPiece(){
+        return 'O';
     }
     public int getRow(){
         return row;
     }
     public int getCol(){
         return column;
-    }
-    public void set(Pieces[][] board,String color, int row, int col){
-        board[5][8] = board[4][8].getCopy();
-        board[4][8] = board[3][8].getCopy();
-        board[3][8] = board[2][8].getCopy();
-        board[2][8] = board[1][8].getCopy();
-        this.row = row;
-        column = col;
-        this.color = color;
     }
     public void setRow(int row){
         this.row = row;
@@ -73,15 +66,15 @@ public abstract class Pieces {
         //need to check all places between when torpedo
         throw new UnsupportedOperationException("This should not have been called, please specify the subclass you want");
     }
-    public void move1(Pieces[][] board, int howFar){
+    public void move1(Pieces[][] board, ArrayList<int[]>  moveHistory, int howFar){
         //need to check all places between when torpedo
         throw new UnsupportedOperationException("This should not have been called, please specify the subclass you want");
     }
-    public void move2(Pieces[][] board){
+    public void move2(Pieces[][] board, ArrayList<int[]>  moveHistory){
         //need to check all places between when torpedo
         throw new UnsupportedOperationException("This should not have been called, please specify the subclass you want");
     }
-    public void move1(Pieces[][] board, int direction, int howFar){
+    public void move1(Pieces[][] board, ArrayList<int[]>  moveHistory, int direction, int howFar){
         //need to check all places between when torpedo
         throw new UnsupportedOperationException("This should not have been called, please specify the subclass you want");
     }

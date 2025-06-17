@@ -1,12 +1,14 @@
+import java.util.ArrayList;
+
 public  class Pawn extends Pieces{
     //instant variables of subclass
     boolean canTorpedo;
     int direction;
     
-    public Pawn(String color, int row, int column, boolean torp){
+    public Pawn(char color, int row, int column, boolean torp){
         super(color,row,column);
         direction = -1;
-        if(super.color.equals("B")){
+        if(super.color == 'B'){
             direction = 1;
         }
         canTorpedo = torp;
@@ -18,8 +20,8 @@ public  class Pawn extends Pieces{
     //hii
         //seting instant variables
         //used for pringint board,us this and then get color to make a piece
-    public String getPiece(){
-        return "P";
+    public char getPiece(){
+        return 'P';
     }
     
     //used for deep copy func
@@ -66,30 +68,27 @@ public  class Pawn extends Pieces{
     }
     
     //attacking 
-    public int[] checkMove2(Pieces[][] ogboard) {
+    public int[] checkMove2(Pieces[][] ogboard, ArrayList<int[]>  moveHistory) {
         Pieces[][] board = Moves.deepCopy(ogboard);
         int[] arr = new int[2];
     
         // En passant
-        if (board[1][8] instanceof Pawn) { // safety check
-            Pieces lastMove = board[1][8];
-            int lastRow = lastMove.getRow();
-            int lastCol = lastMove.getCol();
+        if (!moveHistory.isEmpty() && moveHistory.get(moveHistory.size() - 1)[0] == 1) { // safety check
+            int[] lastMove = moveHistory.get(moveHistory.size() - 1);
+            boolean isInRow = (super.color == 'W' && super.row == 3) || (super.color == 'B' && super.row == 4);
             if (
-                lastMove instanceof Pawn &&
-                lastRow == super.row &&
-                !lastMove.getColor().equals(super.color) &&
-                (lastCol == super.column - 1 || lastCol == super.column + 1) &&
-                board[lastRow][lastCol] instanceof Pawn
+                isInRow &&
+                (lastMove[3] == super.column - 1 || lastMove[3] == super.column + 1) &&
+                lastMove[5] == 2
             ) {
-                int colDirection = lastCol == super.column + 1 ? 1 : -1;
+                int colDirection = lastMove[3] == super.column + 1 ? 1 : -1;
                 int newRow = super.row + direction;
                 int newCol = super.column + colDirection;
                 if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
                     board[newRow][newCol] = new Pawn(super.color, newRow, newCol, false);
                     board[super.row][super.column] = new Empty(super.row, super.column);
                     
-                    //need to make a deep copy of this piece
+                    //need to make a copy of this piece
                     Pieces temphold = board[super.row][newCol].getCopy();
                     
                     board[super.row][newCol] = new Empty(super.row, newCol);
@@ -111,7 +110,7 @@ public  class Pawn extends Pieces{
             if (newRow < 0 || newRow >= 8 || newCol < 0 || newCol >= 8) continue;
     
             Pieces target = board[newRow][newCol];
-            if (!target.getColor().equals(super.color) && !target.getColor().equals("-")) {
+            if (target.getColor() != super.color && target.getColor() != 'O') {
                 //Pieces[][] testBoard = Moves.deepCopy(ogboard);
                 Pieces temphold = board[newRow][newCol].getCopy();
                 board[newRow][newCol] = new Pawn(super.color, newRow, newCol, false);
@@ -130,32 +129,48 @@ public  class Pawn extends Pieces{
         return Moves.cleanZeros(arr);
     }
     
-    public void move1(Pieces[][] board, int howFar){
-        if ((super.row+(howFar*direction) == 0 && super.color.equals("W"))|| (super.row+(howFar*direction) == 7 && super.color.equals("B"))){
+    public void move1(Pieces[][] board, ArrayList<int[]>  moveHistory, int howFar){
+        if ((super.row+(howFar*direction) == 0 && super.color == 'W')|| (super.row+(howFar*direction) == 7 && super.color == 'B')){
             board[super.row+(howFar*direction)][super.column] = new Queen(super.color, super.row+(howFar*direction), super.column);
         }else{
             board[super.row+(howFar*direction)][super.column] = new Pawn(super.color, super.row+(howFar*direction), super.column, false);
         }
         board[super.row][super.column] = new Empty(super.row, super.column);
-        board[1][8] = new Pawn(super.color, super.row+(howFar*direction), super.column, false);
+
+        int intColor = super.color == 'B' ? -1 : 1;
+        moveHistory.add(new int[]{1,intColor, super.row, super.column,howFar, 0, 0});
     }
     
-    public void move2(Pieces[][] board, int colDirection){
-        if ((super.row + direction == 0 && super.color.equals("W"))|| (super.row  + direction == 7 && super.color.equals("B"))){
+    public void move2(Pieces[][] board, ArrayList<int[]>  moveHistory, int colDirection){
+        char capturedPiece = 'x';
+        if ((super.row + direction == 0 && super.color == 'W')|| (super.row  + direction == 7 && super.color == 'B')){
+            //this is a promotion of a pawn
+            capturedPiece = board[super.row+direction][super.column + colDirection].getPiece();
             board[super.row+direction][super.column + colDirection] = new Queen(super.color, super.row+direction, super.column + colDirection);
         }else{
-            if (board[super.row+direction][super.column + colDirection] instanceof Empty){
-                board[super.row][super.column + colDirection] = new Empty(super.row, super.column + colDirection);
+            if (!(board[super.row+direction][super.column + colDirection] instanceof Empty)){//reg capture
+                capturedPiece = board[super.row+direction][super.column + colDirection].getPiece();
             }
             board[super.row+direction][super.column + colDirection] = new Pawn(super.color, super.row+direction, super.column + colDirection, false);
         }
         board[super.row][super.column] = new Empty(super.row, super.column);
-        
-        Pieces lastMove = board[1][8];
-        //enpassant check
-        if( board[lastMove.getRow()][lastMove.getCol()] instanceof Pawn && lastMove.getRow() == super.row && !board[lastMove.getRow()][lastMove.getCol()].getColor().equals(super.color) && (lastMove.getCol() == super.column - 1 || lastMove.getCol() == super.column + 1 )){
-            board[super.row][super.column + colDirection] = new Empty(super.row, super.column);
+        //determines if it was enpassant
+        if(capturedPiece == 'x'){
+            capturedPiece = board[super.row+direction][super.column + colDirection].getPiece();
+            board[super.row][super.column + colDirection] = new Empty(super.row, super.column + colDirection);
         }
-        board[1][8] = new Pawn(super.color, super.row+direction, super.column + colDirection, false);
+        //this to to transform color into into int
+        int intColor = super.color == 'B' ? -1 : 1;
+        int capturedPieceInt = switch (capturedPiece) {
+            //case 'O' -> 0; // Empty
+            case 'P' -> 1;
+            case 'R' -> 2;
+            case 'N' -> 3;
+            case 'B' -> 4;
+            case 'K' -> 5;
+            case 'Q' -> 6; // Queen or unknown defaults to 6
+            default -> throw new UnsupportedOperationException("Captured piece is not a valid chess piece");
+        };
+        moveHistory.add(new int[]{1,intColor, super.row, super.column,1, colDirection, capturedPieceInt});
     }
 }

@@ -3,12 +3,20 @@ public class Main
     public static void main(String[] args)
     {
         Game game = new Game();
-        game.gameLoop();
-        //add way forch check, and func to find all possible moves
-        //possible change how knights work
+        long totalTime = 0;
+        for (int i = 0; i < 10001; i++){
+            totalTime += game.gameLoop();
+        }
+        System.out.println(totalTime/10000 + " is the ave over 2000 games" );
+    //goals
+    //fix king being missplaced
+    //between getAllMoves and when the computer takes a turn, the turn has become invalid
+    // it is not computer take turn as when using the og take turn, it works
+    //does not occur when row becomes negitive
+    //when on right of board, the yphase into the phantom row
+    //happend to directions 3, 5, and rarely 7
 
-        //game.takeTurn();
-        //636, 220, 161,542, 1022, 703,1042,1148
-        //pawn capure directions need to be the change in column value
+    //turn color into a char
+    //develop history to replace [1-6][8] phantom peices
     }
 }

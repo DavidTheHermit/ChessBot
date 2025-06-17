@@ -1,16 +1,21 @@
+import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Set;
 public class Game {
     public Watch watch;
+    public ArrayList<int[]>  moveHistory;
     Pieces[][] board;
     Scanner input = new Scanner(System.in);
     public Game(){
+        moveHistory = new ArrayList<int[]>();
         board = new Pieces[8][9];
         SetUp.regBoard(board);
     }
     public Pieces[][] getBoard(){
         return board;
     }
-    public void gameLoop(){
+    public long gameLoop(){
+        SetUp.regBoard(board);
         watch = new Watch();
         // watch.start();
         String move;
@@ -25,18 +30,19 @@ public class Game {
         for(int i = 0; i < 58; i++){
             mod2[i]=mod1[i]+(int)(Math.random() * 100)-50;
         }
+        char curColor = 'B';
         while (kingsSafe){
             turns+=1;
             watch.start(); // I just changed this
-            String curColor = "W";
-            if(board[1][8].getColor().equals("W")){
-                curColor = "B";
-            }
-            
+            curColor = curColor == 'B' ? 'W' : 'B';
             //System.out.println("It is " + curColor+"'s turn, please give your moveZ: row col direction distance");
             //System.out.println();
             //System.out.println("here are the possible moves");
-            list = Moves.getAllMoves(board, curColor);
+            list = Moves.getAllMoves(board, moveHistory, curColor);
+            if (list[0].length == 0) {
+                System.out.println("No legal moves for " + curColor + ". Game over.");
+                break; // or return, depending on your game logic
+            }
             //for (int i = 0; i < list.length; i++){
             //    System.out.println("["+list[i][0]+", "+list[i][1]+", "+list[i][2]+", "+list[i][3]+"]");
             //}
@@ -47,10 +53,10 @@ public class Game {
             //move = input.nextLine();
             // int int direction distance
             //BotTools timesCalled = BotTools();
-            if (false){
+            if (mod1[0] == 0){//null as testing for king going missing
                 int[] botMove;
                 int depth = 2;
-                if (curColor.equals("B")){
+                if (curColor == 'B'){
                     if (turns > 50){
                         depth = 3;
                         if (turns > 100){
@@ -78,55 +84,65 @@ public class Game {
             //System.out.println(BotTools.evaluation(board, mod));
             String[] moveList = move.split(" ");
             computerTakeTurn(Integer.parseInt(moveList[0]), Integer.parseInt(moveList[1]), Integer.parseInt(moveList[2]), Integer.parseInt(moveList[3]));
-            if(curColor.equals("W")){
-                kingsSafe = Moves.getMoves(board, "B");
-                if ((!kingsSafe && Moves.isKingSafe(board, "B"))||Moves.checkIfOnlyKings(board)){
+            if(curColor == 'W'){
+                kingsSafe = Moves.getMoves(board, moveHistory, 'B');
+                if ((!kingsSafe && Moves.isKingSafe(board, 'B'))||Moves.checkIfOnlyKings(board)){
                     System.out.println("it is a draw");
+                    watch.stop();
+                    total+=watch.getElapsedTimeMicros();
+                    //SetUp.printMoveHistory(moveHistory);
                     break;
                 }
             }else{
-                kingsSafe = Moves.getMoves(board, "W");
-                if ((!kingsSafe && Moves.isKingSafe(board, "W"))||Moves.checkIfOnlyKings(board)){
+                kingsSafe = Moves.getMoves(board, moveHistory, 'W');
+                if ((!kingsSafe && Moves.isKingSafe(board, 'W'))||Moves.checkIfOnlyKings(board)){
                     System.out.println("it is a draw");
+                    watch.stop();
+                    total+=watch.getElapsedTimeMicros();
+                    //SetUp.printMoveHistory(moveHistory);
                     break;
                 }
             }
             //this ensures that 3 fold repition stops the game
-            if(turns > 6 &&board[2][8].getClass().equals(board[6][8].getClass())&& board[2][8].getRow() == board[6][8].getRow() && board[2][8].getCol() == board[6][8].getCol()&& board[1][8].getClass().equals(board[5][8].getClass())&& board[1][8].getRow() == board[5][8].getRow() && board[1][8].getCol() == board[5][8].getCol()){
-                System.out.println("it is a draw");
-                kingsSafe = false;
+            if(turns > 999 && Moves.threeFoldRepition(moveHistory)){
+                System.out.println("it is a draw by 3 fold repition");
+                watch.stop();
+                total+=watch.getElapsedTimeMicros();
+                SetUp.printMoveHistory(moveHistory);
+                SetUp.printBoard(board);
                 break;
             }
             
             if (!kingsSafe){
                 System.out.println(curColor+" has won");
-                
             }
             watch.stop();
             total+=watch.getElapsedTimeMicros();
             //microTimes.add(watch.getElapsedTimeMicros());
             //System.out.println("one turn watch: "+watch.getElapsedTimeMicros());
-            SetUp.printBoard(board);
+            //SetUp.printBoard(board);
+
+            if ( !(board[0][8] instanceof King)){
+                System.out.println("black king is dead ------------");
+                SetUp.printBoard(board);
+            }
+            if ( !(board[7][8] instanceof King)){
+                System.out.println("White king is dead ------------");
+                SetUp.printBoard(board);
+            }
         }
         System.out.println(total/turns+" ave time in "+turns +" turns");
-        if (board[1][8].getColor().equals("B")){
-            mod1 = mod2;
-        }
-        for (int i = 0; i < 58; i++){
-            System.out.print(mod1[i] + ", ");
-        }
+        //for (int i = 0; i < 58; i++){
+        //    System.out.print(mod1[i] + ", ");
+        //}
+        return total/turns;
     }
     
     
     //should a=keep asking for proper cords if false is returned
     public boolean takeTurn(int row, int col, int direction, int distance){
         Pieces piece = board[row][col];
-        board[6][8] = board[5][8].getCopy();
-        board[5][8] = board[4][8].getCopy();
-        board[4][8] = board[3][8].getCopy();
-        board[3][8] = board[2][8].getCopy();
-        board[2][8] = board[1][8].getCopy();
-        if (piece.getColor().equals("-")){
+        if (piece.getColor() == 'O'){
             return false;
         }
         
@@ -134,122 +150,112 @@ public class Game {
             //attack 
             //pawn captures, Distance needs to be -1 or 1 and direction needs to be odd
             if(direction % 2 == 1 && Moves.isIn(((Pawn) board[row][col]).checkMove2(board),distance)){
-                ((Pawn) board[row][col]).move2(board, distance);//do i need distance
+                ((Pawn) board[row][col]).move2(board, moveHistory, distance);//do i need distance
                 return true;
             }
             if (Moves.isIn(((Pawn) board[row][col]).checkMove1(board),distance)){
-                ((Pawn) board[row][col]).move1(board, distance);
+                ((Pawn) board[row][col]).move1(board, moveHistory, distance);
                 return true;
             }
         }
         if (piece instanceof Rook){
             if (direction % 2 == 0 && Moves.isIn(((Rook) board[row][col]).checkMove1(board, direction),distance)){
-                ((Rook) board[row][col]).move1(board, direction, distance);
+                ((Rook) board[row][col]).move1(board, moveHistory, direction, distance);
                 return true;
             }
         }
         if (piece instanceof Knight){
             if (((Knight) board[row][col]).checkMove1(board, direction).length == 1){
-                ((Knight) board[row][col]).move1(board, direction);
+                ((Knight) board[row][col]).move1(board, moveHistory, direction);
                 return true;
             }
         }
         if (piece instanceof Bishop){
             if (direction % 2 == 1 && Moves.isIn(((Bishop) board[row][col]).checkMove1(board, direction),distance)){
-                ((Bishop) board[row][col]).move1(board, direction, distance);
+                ((Bishop) board[row][col]).move1(board, moveHistory, direction, distance);
                 return true;
             }
         }
         if (piece instanceof King){
             //distance is always 1
             if (Moves.isIn(((King) board[row][col]).checkMove1(board, direction),distance)){
-                ((King) board[row][col]).move1(board, direction, distance);
+                ((King) board[row][col]).move1(board, moveHistory, direction, distance);
                 return true;
             }
         }
         if (piece instanceof Queen){
             if (Moves.isIn(((Queen) board[row][col]).checkMove1(board, direction),distance)){
-                ((Queen) board[row][col]).move1(board, direction, distance);
+                ((Queen) board[row][col]).move1(board, moveHistory, direction, distance);
                 return true;
             }
         }
         return false;
     }
 
-    public static boolean computerTakeTurn(Pieces [][] board,int row, int col, int direction, int distance){
+    public static boolean computerTakeTurn(Pieces [][] board, ArrayList<int[]>  moveHistory,int row, int col, int direction, int distance){
         Pieces piece = board[row][col];
-        board[6][8] = board[5][8].getCopy();
-        board[5][8] = board[4][8].getCopy();
-        board[4][8] = board[3][8].getCopy();
-        board[3][8] = board[2][8].getCopy();
-        board[2][8] = board[1][8].getCopy();
         if (piece instanceof Pawn){
             //attack 
             //pawn captures, Distance needs to be -1 or 1 and direction needs to be odd
             if(direction % 2 == 1){
-                ((Pawn) board[row][col]).move2(board, distance);//do i need distance
+                ((Pawn) board[row][col]).move2(board, moveHistory, distance);//do i need distance
                 return true;
             }
-            ((Pawn) board[row][col]).move1(board, distance);
+            ((Pawn) board[row][col]).move1(board, moveHistory, distance);
             return true;
         }
         if (piece instanceof Rook){
-            ((Rook) board[row][col]).move1(board, direction, distance);
+            ((Rook) board[row][col]).move1(board, moveHistory, direction, distance);
             return true;
         }
         if (piece instanceof Knight){
-            ((Knight) board[row][col]).move1(board, direction);
+            ((Knight) board[row][col]).move1(board, moveHistory, direction);
             return true;
         }
         if (piece instanceof Bishop){
-            ((Bishop) board[row][col]).move1(board, direction, distance);
+            ((Bishop) board[row][col]).move1(board, moveHistory, direction, distance);
             return true;
         }
         if (piece instanceof King){
-            ((King) board[row][col]).move1(board, direction, distance);
+            ((King) board[row][col]).move1(board, moveHistory, direction, distance);
             return true;
         }
         if (piece instanceof Queen){
-            ((Queen) board[row][col]).move1(board, direction, distance);
+            ((Queen) board[row][col]).move1(board, moveHistory, direction, distance);
             return true;
         }
         return false;
     }
     public boolean computerTakeTurn(int row, int col, int direction, int distance){
         Pieces piece = board[row][col];
-        board[6][8] = board[5][8].getCopy();
-        board[5][8] = board[4][8].getCopy();
-        board[4][8] = board[3][8].getCopy();
-        board[3][8] = board[2][8].getCopy();
-        board[2][8] = board[1][8].getCopy();
         if (piece instanceof Pawn){
             //attack 
             //pawn captures, Distance needs to be -1 or 1 and direction needs to be odd
             if(direction % 2 == 1){
-                ((Pawn) board[row][col]).move2(board, distance);//do i need distance
+                ((Pawn) board[row][col]).move2(board, moveHistory, distance);//do i need distance
                 return true;
             }
-            ((Pawn) board[row][col]).move1(board, distance);
+            ((Pawn) board[row][col]).move1(board, moveHistory, distance);
             return true;
         }
         if (piece instanceof Rook){
-            ((Rook) board[row][col]).move1(board, direction, distance);
+            ((Rook) board[row][col]).move1(board, moveHistory, direction, distance);
             return true;
         }
         if (piece instanceof Knight){
-            ((Knight) board[row][col]).move1(board, direction);
+            ((Knight) board[row][col]).move1(board, moveHistory, direction);
             return true;
         }
         if (piece instanceof Bishop){
-            ((Bishop) board[row][col]).move1(board, direction, distance);
+            ((Bishop) board[row][col]).move1(board, moveHistory, direction, distance);
             return true;
         }
         if (piece instanceof King){
-            ((King) board[row][col]).move1(board, direction, distance);
+            ((King) board[row][col]).move1(board, moveHistory, direction, distance);
             return true;
         }
         if (piece instanceof Queen){
-            ((Queen) board[row][col]).move1(board, direction, distance);
+            ((Queen) board[row][col]).move1(board, moveHistory, direction, distance);
             return true;
         }
         

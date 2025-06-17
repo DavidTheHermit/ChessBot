@@ -18,10 +18,10 @@ public class BotTools {
         if(depth == 0){
             return new int[] {0,0,0,0, BotTools.evaluation(board, mod) };
         }else{
-            String color = "B";
+            String color = 'B';
             maximize = false;
-            if (board[1][8].getColor().equals("B")){
-                color = "W";
+            if (board[1][8].getColor() == 'B'){
+                color = 'W';
                maximize = true;
             }
             int[][] branches = Moves.getAllMoves(board, color);
@@ -56,28 +56,28 @@ public class BotTools {
         //watch.start();
         int carrots = 0;
         //determine number of moves 0-3 are for possible moves
-        carrots+=Moves.getAllMoves(board, "W").length*mod[0]+mod[1];
-        carrots-=Moves.getAllMoves(board, "B").length*mod[2]+mod[3];
+        carrots+=Moves.getAllMoves(board, 'W').length*mod[0]+mod[1];
+        carrots-=Moves.getAllMoves(board, 'B').length*mod[2]+mod[3];
         
         
         //3 fold repition is not being correctly identifies
         
         boolean kingsSafe;
-        if(board[1][8].getColor().equals("B")){//meaning its white turn
-            kingsSafe = Moves.getMoves(board, "B");
-            if ((board[2][8].getClass().equals(board[6][8].getClass())&& board[2][8].getRow() == board[6][8].getRow() && board[2][8].getCol() == board[6][8].getCol()&& board[1][8].getClass().equals(board[5][8].getClass())&& board[1][8].getRow() == board[5][8].getRow() && board[1][8].getCol() == board[5][8].getCol())||(!kingsSafe && Moves.isKingSafe(board, "B"))||Moves.checkIfOnlyKings(board)){
+        if(board[1][8].getColor() == 'B'){//meaning its white turn
+            kingsSafe = Moves.getMoves(board, 'B');
+            if ((board[2][8].getClass().equals(board[6][8].getClass())&& board[2][8].getRow() == board[6][8].getRow() && board[2][8].getCol() == board[6][8].getCol()&& board[1][8].getClass().equals(board[5][8].getClass())&& board[1][8].getRow() == board[5][8].getRow() && board[1][8].getCol() == board[5][8].getCol())||(!kingsSafe && Moves.isKingSafe(board, 'B'))||Moves.checkIfOnlyKings(board)){
                 //System.out.println("Helppp");
                 return -999990;
             }
         }else{
-            kingsSafe = Moves.getMoves(board, "W");
-            if ((board[2][8].getClass().equals(board[6][8].getClass())&& board[2][8].getRow() == board[6][8].getRow() && board[2][8].getCol() == board[6][8].getCol()&& board[1][8].getClass().equals(board[5][8].getClass())&& board[1][8].getRow() == board[5][8].getRow() && board[1][8].getCol() == board[5][8].getCol())||(!kingsSafe && Moves.isKingSafe(board, "W"))||Moves.checkIfOnlyKings(board)){
+            kingsSafe = Moves.getMoves(board, 'W');
+            if ((board[2][8].getClass().equals(board[6][8].getClass())&& board[2][8].getRow() == board[6][8].getRow() && board[2][8].getCol() == board[6][8].getCol()&& board[1][8].getClass().equals(board[5][8].getClass())&& board[1][8].getRow() == board[5][8].getRow() && board[1][8].getCol() == board[5][8].getCol())||(!kingsSafe && Moves.isKingSafe(board, 'W'))||Moves.checkIfOnlyKings(board)){
                 //System.out.println("Helppp");
                 return 999990;
             }
         }
         if (!kingsSafe){
-            if(board[1][8].getColor().equals("W")){
+            if(board[1][8].getColor() == 'W'){
                 return -999999;
             }
             return 999999;
@@ -100,7 +100,7 @@ public class BotTools {
                     int addOrSubtractCarrots = -1;
                     int ring = -1;
                     Pieces piece = board[row][col];
-                    if (piece.getColor().equals("W")){
+                    if (piece.getColor() == 'W'){
                         addOrSubtractCarrots = 1;
                     }
                     //gives us the position for the ring index when using the mod
@@ -137,7 +137,7 @@ public class BotTools {
                         case "N":
                             carrots+=addOrSubtractCarrots*(mod[8 + ring] * 3 + mod[9 + ring]);
                             break;
-                        case "B":
+                        case 'B':
                             carrots+=addOrSubtractCarrots*(mod[10 + ring] * 3 + mod[11 + ring]);
                             break;
                         case "K":

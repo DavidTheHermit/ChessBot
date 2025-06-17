@@ -1,4 +1,7 @@
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 public class Moves {
     public Moves(){
         System.out.println(" ");
@@ -65,7 +68,7 @@ public class Moves {
         for (int col = column-1; col < column+2; col++){
             if(col > -1 && col < 8){
                 for (int row = startRow; row > -1 && row < 8; row+=direction){
-                    if (board[row][col].getPiece().equals("P") && board[row][col].getDirection() != direction){
+                    if (board[row][col] instanceof Pawn && board[row][col].getDirection() != direction){
                         return false;
                     }
                 
@@ -79,7 +82,7 @@ public class Moves {
         for (int col = column-1; col < column+2; col++){
             if(col > -1 && col < 8){
                 for (int row = 0; row < 8; row+=1){
-                    if (board[row][col].getPiece().equals("P") && board[row][col].getDirection() == direction){
+                    if (board[row][col] instanceof Pawn && board[row][col].getDirection() == direction){
                         return false;
                     }
                 
@@ -90,14 +93,14 @@ public class Moves {
     }
 
     //checks if a path is clear for the piece to move
-    public static int checkClearPathCardinal(Pieces[][] board, int row, int col, int direction, String color){
+    public static int checkClearPathCardinal(Pieces[][] board, int row, int col, int direction, char color){
         //for row
         if (direction == 2){
             for(int distance = 1; col+distance<8; distance++){
-                if(board[row][col+distance].getColor().equals("-")){
+                if(board[row][col+distance].getColor() == 'O'){
                     continue;
                 }
-                if(board[row][col+distance].getColor().equals(color)){
+                if(board[row][col+distance].getColor() == color){
                     return distance - 1;
                 }
                 return distance;
@@ -106,10 +109,10 @@ public class Moves {
         }
         if (direction == 6){
             for(int distance = 1; col - distance>-1; distance++){
-                if(board[row][col-distance].getColor().equals("-")){
+                if(board[row][col-distance].getColor() == 'O'){
                     continue;
                 }
-                if(board[row][col-distance].getColor().equals(color)){
+                if(board[row][col-distance].getColor() == color){
                     return distance - 1;
                 }
                 return distance;
@@ -118,10 +121,10 @@ public class Moves {
         }
         if (direction == 0){
             for(int distance = 1; row-distance>-1; distance++){
-                if(board[row-distance][col].getColor().equals("-")){
+                if(board[row-distance][col].getColor() == 'O'){
                     continue;
                 }
-                if(board[row-distance][col].getColor().equals(color)){
+                if(board[row-distance][col].getColor() == color){
                     return distance - 1;
                 }
                 return distance;
@@ -130,10 +133,10 @@ public class Moves {
         }
         if (direction == 4){
             for(int distance = 1; row+distance<8; distance++){
-                if(board[row+distance][col].getColor().equals("-")){
+                if(board[row+distance][col].getColor() == 'O'){
                     continue;
                 }
-                if(board[row+distance][col].getColor().equals(color)){
+                if(board[row+distance][col].getColor() == color){
                     return distance - 1;
                 }
                 return distance;
@@ -152,13 +155,13 @@ public class Moves {
         int WB = 0;
         for (int row = 0; row < 8; row++){
             for (int col = 0; col < 8; col++){
-                String piece = board[row][col].getPiece();
-                if (piece.equals("-") || piece.equals("K")){
+                char piece = board[row][col].getPiece();
+                if (piece == 'O' || piece == 'K'){
                     continue;
                 }
-                if(piece.equals("B")){
+                if(piece == 'B'){
                     switch(board[row][col].getColor()){
-                        case "W":
+                        case 'W':
                             WB++;
                             if (WB == 2){
                                 return false;
@@ -174,9 +177,9 @@ public class Moves {
                     }
                     continue;
                 }
-                if(piece.equals("N")){
+                if(piece == 'N'){
                     switch(board[row][col].getColor()){
-                        case "W":
+                        case 'W':
                             WN++;
                             if (WN == 2){
                                 return false;
@@ -200,13 +203,13 @@ public class Moves {
     }
     
     //pawn checker
-    public static int checkPawn(Pieces[][] board, int row, int col, String color){
+    public static int checkPawn(Pieces[][] board, int row, int col, char color){
     //problem
-        if(color.equals("W")){
+        if(color == 'W'){
             for(int distance = 1; distance < 3; distance++){
                 int newRow = row - distance;
                 if (newRow < 0 || newRow >= 8) return distance - 1;
-                if (board[newRow][col].getColor().equals("-")){
+                if (board[newRow][col].getColor() == 'O'){
                     continue;
                 }
                 return distance - 1;
@@ -216,7 +219,7 @@ public class Moves {
             for(int distance = 1; distance < 3; distance++){
                 int newRow = row + distance;
                 if (newRow < 0 || newRow >= 8) return distance - 1;
-                if (board[newRow][col].getColor().equals("-")){
+                if (board[newRow][col].getColor() == 'O'){
                     continue;
                 }
                 return distance - 1;
@@ -225,17 +228,17 @@ public class Moves {
         }
     }
     
-    public static int checkClearDiagonal(Pieces[][] board, int startRow, int startCol,int direction, String color){
+    public static int checkClearDiagonal(Pieces[][] board, int startRow, int startCol,int direction, char color){
         //one method
         if (direction == 5){
             for (int i = 1; i<8; i++){
                 startRow++;
                 startCol--;
                 if(startRow<8&&startCol>-1){
-                    if(board[startRow][startCol].getColor().equals("-") && startRow != 7 && startCol != 0){
+                    if(board[startRow][startCol].getColor() == 'O'){
                         continue;
                     }
-                    if(board[startRow][startCol].getColor().equals(color)){
+                    if(board[startRow][startCol].getColor() == color){
                         //checks if the end space is move able or capurable
                         return i-1;
                     }else{
@@ -245,16 +248,17 @@ public class Moves {
                     return i-1;
                 }
             }
+            return 0; 
         }
         if (direction == 1){
             for (int i = 1; i<8; i++){
                 startRow--;
                 startCol++;
                 if(startRow>-1&&startCol<8){
-                    if(board[startRow][startCol].getColor().equals("-") && startRow != 0 && startCol != 7){
+                    if(board[startRow][startCol].getColor() == 'O'){
                         continue;
                     }
-                    if(board[startRow][startCol].getColor().equals(color)){
+                    if(board[startRow][startCol].getColor() == color){
                         //checks if the end space is move able or capurable
                         return i-1;
                     }else{
@@ -264,16 +268,17 @@ public class Moves {
                     return i-1;
                 }
             }
+            return 0; 
         }
         if (direction == 7){
             for (int i = 1; i<8; i++){
                 startRow--;
                 startCol--;
                 if(startRow>-1&&startCol>-1){
-                    if(board[startRow][startCol].getColor().equals("-") && startRow != 0 && startCol != 0){
+                    if(board[startRow][startCol].getColor() == 'O'){
                         continue;
                     }
-                    if(board[startRow][startCol].getColor().equals(color)){
+                    if(board[startRow][startCol].getColor() == color){
                         //checks if the end space is move able or capurable
                         return i-1;
                     }else{
@@ -283,16 +288,17 @@ public class Moves {
                     return i-1;
                 }
             }
+            return 0; 
         }
         if (direction == 3){
             for (int i = 1; i<8; i++){
                 startRow++;
                 startCol++;
                 if(startRow<8&&startCol<8){
-                    if(board[startRow][startCol].getColor().equals("-") && startRow != 7 && startCol != 7){
+                    if(board[startRow][startCol].getColor() == 'O'){
                         continue;
                     }
-                    if(board[startRow][startCol].getColor().equals(color)){
+                    if(board[startRow][startCol].getColor() == color){
                         //checks if the end space is move able or capurable
                         return i-1;
                     }else{
@@ -302,79 +308,83 @@ public class Moves {
                     return i-1;
                 }
             }
+            return 0; 
         }
-        throw new UnsupportedOperationException("Direction was not formated correctly as the direction is" + direction);
+        throw new UnsupportedOperationException(" Direction was not formated correctly as the direction is" + direction + "" + startRow + "" + startCol);
     }
     //do the check caridna; but speficy for black and the ncheck if rook or queen on carina; and diagonal is bishop and queen
     //this gets all possible moves and then gives a list of cordinates, 0
     
     //king is not detecting 2 1 as a possible move
     
-    public static boolean getMoves(Pieces[][] board, String color){
+    public static boolean getMoves(Pieces[][] board, ArrayList<int[]>  moveHistory, char color){
         for (int row = 0; row < 8; row++){
             for (int col = 0; col < 8; col++){
-                if (board[row][col] == null||!board[row][col].getColor().equals(color)){
+                if (board[row][col] == null) {
+                    System.out.println("Null at: " + row + "," + col);
+                }
+                if (board[row][col].getColor() != color){
                     continue;
                 }
+                Pieces piece = board[row][col];
                 //allall
-                if (board[row][col] instanceof Pawn){
-                    //System.out.println(Moves.printArray(((Pawn) board[row][col]).checkMove1(board)));
-                    if (((Pawn) board[row][col]).checkMove1(board).length > 0){  
+                if (piece instanceof Pawn){
+                    //System.out.println(Moves.printArray(((Pawn) piece).checkMove1(board)));
+                    if (((Pawn) piece).checkMove1(board).length > 0){  
                         return true;
                     }
-                    if(((Pawn) board[row][col]).checkMove2(board).length > 0){
+                    if(((Pawn) piece).checkMove2(board, moveHistory).length > 0){
                         return true;
                     }
                     continue;
                 }
-                if (board[row][col] instanceof Rook){
+                if (piece instanceof Rook){
                     for(int i = 0; i < 7; i+=2){
-                        if(((Rook) board[row][col]).checkMove1(board, i).length > 0){
+                        if(((Rook) piece).checkMove1(board, i).length > 0){
                             return true;
                         }
                     }
                     continue;
                 }
-                if (board[row][col] instanceof Knight){
+                if (piece instanceof Knight){
                     for(int i = 0; i < 8; i++){
-                        if (((Knight) board[row][col]).checkMove1(board, i).length == 1){
+                        if (((Knight) piece).checkMove1(board, i).length == 1){
                             return true;
                         }
                     }
                     continue;
                 }
-                if (board[row][col] instanceof Bishop){
+                if (piece instanceof Bishop){
                     for (int direction = 1; direction < 8; direction+=2){
-                        if(((Bishop) board[row][col]).checkMove1(board, direction).length > 0){
+                        if(((Bishop) piece).checkMove1(board, direction).length > 0){
                             return true;
                         }
                     }
                     continue;
                 }
-                if (board[row][col] instanceof King){
+                if (piece instanceof King){
                     for (int direction = 0; direction < 8; direction++){
-                        if(((King) board[row][col]).checkMove1(board, direction).length > 0){
+                        if(((King) piece).checkMove1(board, direction).length > 0){
                             return true;
                         }
                     }
                     continue;
                 }
                 
-                if (board[row][col] instanceof Queen){
+                if (piece instanceof Queen){
                     for (int direction = 0; direction < 8; direction++){
-                        if(((Queen) board[row][col]).checkMove1(board, direction).length > 0){
+                        if(((Queen) piece).checkMove1(board, direction).length > 0){
                             return true;
                         }
                         
                     }
-                    continue;
                 }
             }
         }
         return false;
     }
     
-    public static int[][] getAllMoves(Pieces[][] board, String color){
+    public static int[][] getAllMoves(Pieces[][] board, ArrayList<int[]>  moveHistory, char color){
         //outputs arays of arrays that show what user input would be needed to do a move
         ArrayList<Integer> moves = new ArrayList<Integer>();
         for (int row = 0; row < 8; row++){
@@ -383,7 +393,7 @@ public class Moves {
                 //    System.out.print(moves[i]+" ");
                 //}
                 //System.out.println("");
-                if (!board[row][col].getColor().equals(color)){
+                if (board[row][col].getColor() != color){
                     continue;
                 }
                 //allall
@@ -395,11 +405,11 @@ public class Moves {
                         moves.add(0);
                         moves.add(distance);
                     }
-                    for(int distance : ((Pawn) board[row][col]).checkMove2(board)){
+                    for(int distance : ((Pawn) board[row][col]).checkMove2(board, moveHistory)){
                         moves.add(row);
                         moves.add(col);
-                        moves.add(1);
-                        moves.add(distance);
+                        moves.add(1);//tells its a capture and is diagonal
+                        moves.add(distance);//tells us the colDirection to say which direction to capture
                     }
                     continue;
                 }
@@ -447,7 +457,7 @@ public class Moves {
                     }
                     continue;
                 }
-                
+
                 if (board[row][col] instanceof Queen){
                     for (int direction = 0; direction < 8; direction++){
                         for(int distance : ((Queen) board[row][col]).checkMove1(board, direction)){
@@ -471,69 +481,79 @@ public class Moves {
         return returnArray;
     }
     
-    public static boolean isKingSafe(Pieces[][] board,String color){
-        
-        //needs to check if king is near
-        
-        //for row
-        //goes left first
-        //this calls and finds which king location we should use
+    public static boolean threeFoldRepition(ArrayList<int[]> history) {
+        Map<String, Integer> moveCounts = new HashMap<>();
+
+        for (int[] move : history) {
+            String key = Arrays.toString(move);
+            moveCounts.put(key, moveCounts.getOrDefault(key, 0) + 1);
+            if (moveCounts.get(key) >= 3) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean isKingSafe(Pieces[][] board,char color){
         int row = board[7][8].getRow();
         int col = board[7][8].getCol();
-        if (color.equals("B")){
+        if (color == 'B'){
             row = board[0][8].getRow();
             col = board[0][8].getCol();
         }
         //System.out.println(row+" "+col);
         for (int i = col-1; i>-1; i--){
-            if (board[row][i].getColor().equals("-")){
+            if (board[row][i].getColor() == 'O'){
                 continue;
             }
-            if(board[row][i].getColor().equals(color)){
+            if(board[row][i].getColor() == color){
                 break;
             }
-            if( board[row][i] instanceof Queen||board[row][i] instanceof Rook||(board[row][i] instanceof King && i == col-1)){
+            if( board[row][i] instanceof Queen||board[row][i] instanceof Rook){
                 return false;
             }
+            break;
         }
         for (int i = col+1; i<8; i++){
-            if (board[row][i].getColor().equals("-")){
+            if (board[row][i].getColor() == 'O'){
                 continue;
             }
-            if(board[row][i].getColor().equals(color)){
+            if(board[row][i].getColor() == color){
                 break;
             }
-            if(board[row][i] instanceof Queen||board[row][i] instanceof Rook||(board[row][i] instanceof King && i == col+1)){
+            if(board[row][i] instanceof Queen||board[row][i] instanceof Rook){
                 return false;
             }
+            break;
         }
         
         //for a colum
         //up
         for (int i = row-1; i>-1; i--){
-            if (board[i][col].getColor().equals("-")){
+            if (board[i][col].getColor() == 'O'){
                 continue;
             }
-            if(board[i][col].getColor().equals(color)){
+            if(board[i][col].getColor() == color){
                 break;
             }
-            if(board[i][col] instanceof Queen||board[i][col] instanceof Rook||(board[i][col] instanceof King && i == row-1)){
-                
+            if(board[i][col] instanceof Queen||board[i][col] instanceof Rook){
                 return false;
             }
+            break;
         }
         for (int i = row+1; i<8; i++){
             //String colour = board[row][i].getColor();
-            if (board[i][col].getColor().equals("-")){
+            if (board[i][col].getColor() == 'O'){
                 continue;
             }
-            if(board[i][col].getColor().equals(color)){
+            if(board[i][col].getColor() == color){
                 break;
             }
-            if(board[i][col] instanceof Queen||board[i][col] instanceof Rook||(board[i][col] instanceof King && i == row+1)){
-                
+            if(board[i][col] instanceof Queen||board[i][col] instanceof Rook){
                 return false;
             }
+            break;
         }
         
         //both north checks need to check for pawns when the king is white
@@ -543,16 +563,15 @@ public class Moves {
         int testC = col+1;
         //needs to check for opisite color in direction of pawn
         while(testR > -1&& testC < 8){
-            if (board[testR][testC].getColor().equals("-")){
+            if (board[testR][testC].getColor() == 'O'){
                 testR--;
                 testC++;
                 continue;
             }
-            if(board[testR][testC].getColor().equals(color)){
+            if(board[testR][testC].getColor() == color){
                 break;
             }
-            if(board[testR][testC] instanceof Queen||board[testR][testC] instanceof Bishop||(board[row-1][col+1] instanceof Pawn && board[row-1][col+1].getColor().equals("B")) ||(board[testR][testC] instanceof King && testR == row-1 &&  testC == col+1)){
-                
+            if(board[testR][testC] instanceof Queen||board[testR][testC] instanceof Bishop||(testC == col + 1 && testR == row-1 &&(( board[testR][testC] instanceof Pawn && board[testR][testC].getColor() == 'B')))){
                 return false;
             }
             testR--;
@@ -565,18 +584,21 @@ public class Moves {
         //needs to check for opisite color in direction of pawn
         while(testR > -1&& testC > -1){
             //checks if space
-            if (board[testR][testC].getColor().equals("-")){
+            if (board[testR][testC].getColor() == 'O'){
                 //add -- and ++
                 testR--;
                 testC--;
                 continue;
             }
             //checls if it is a impermiable thing
-            if(board[testR][testC].getColor().equals(color)){
+            if(board[testR][testC].getColor() == color){
                 break;
             }
             
-            if(board[testR][testC] instanceof Queen||board[testR][testC] instanceof Bishop||(board[row-1][col-1] instanceof Pawn && board[row-1][col-1].getColor().equals("B"))||(board[testR][testC] instanceof King && testR == row-1 &&  testC == col-1)){
+            if(board[testR][testC] instanceof Queen||board[testR][testC] instanceof Bishop||
+            (testR == row - 1 && testC == col-1 &&
+            (( board[testR][testC] instanceof Pawn && board[testR][testC].getColor() == 'B') 
+            ||(board[testR][testC] instanceof King)))){
                 return false;
             }
             testR--;
@@ -589,16 +611,16 @@ public class Moves {
         //needs to check for opisite color in direction of pawn
         while(testR < 8 && testC > -1){
             //checks if space
-            if (board[testR][testC].getColor().equals("-")){
+            if (board[testR][testC].getColor() == 'O'){
                 testR++;
                 testC--;
                 continue;
             }
             //checls if it is a impermiable thing
-            if(board[testR][testC].getColor().equals(color)){
+            if(board[testR][testC].getColor() == color){
                 break;
             }
-            if(board[testR][testC] instanceof Queen||board[testR][testC] instanceof Bishop||(board[row+1][col-1] instanceof Pawn && board[row+1][col-1].getColor().equals("W"))||(board[testR][testC] instanceof King && testR == row+1 &&  testC == col-1)){
+            if(board[testR][testC] instanceof Queen||board[testR][testC] instanceof Bishop||(testR == row + 1 && testC == col-1 && (( board[testR][testC] instanceof Pawn && board[testR][testC].getColor() == 'W')))){
                 return false;
             }
             testR++;
@@ -609,55 +631,54 @@ public class Moves {
         testC = col+1;
         while(testR < 8 && testC < 8){
             //checks if space
-            if (board[testR][testC].getColor().equals("-")){
+            if (board[testR][testC].getColor() == 'O'){
                 testR++;
                 testC++;
                 continue;
             }
             //checls if it is a impermiable thing
-            if(board[testR][testC].getColor().equals(color)){
+            if(board[testR][testC].getColor() == color){
                 break;
             }
-            if(board[testR][testC] instanceof Queen||board[testR][testC] instanceof Bishop||(board[row+1][col+1] instanceof Pawn && board[row+1][col+1].getColor().equals("W"))||(board[testR][testC] instanceof King && testR == row+1 &&  testC == col+1)){
+            if(board[testR][testC] instanceof Queen||board[testR][testC] instanceof Bishop
+            ||(testR == row + 1 && testC == col + 1 &&(( board[testR][testC] instanceof Pawn && board[testR][testC].getColor() == 'W')))){
                 return false;
             }
             testR++;
             testC++;
         }
-        
+        //checks for kings
+        for (int i = row-1; i < row+2; i++){
+            for (int j = col-1; j < col+2; j++){
+                if (i == row && j == col){
+                    continue;
+                }
+                if (i > -1 && i < 8 && j > -1 && j < 8){
+                    if (board[i][j].getColor() == 'O' || board[i][j].getColor() == color){
+                        continue;
+                    }
+                    if(board[i][j] instanceof King){
+                        return false;
+                    }
+                }
+            }
+        }
+
         //checks for knights
-        //south
-        if (col < 7 && row < 6 && !board[row + 2][col + 1].getColor().equals(color) && board[row + 2][col + 1] instanceof Knight){
-            return false;
+        int[][] knightMoves = {
+            {-2, -1}, {-2, +1}, {-1, -2}, {-1, +2},
+            {+1, -2}, {+1, +2}, {+2, -1}, {+2, +1}
+        };
+
+        for (int[] offset : knightMoves) {
+            int newRow = row + offset[0];
+            int newCol = col + offset[1];
+            if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+                if (board[newRow][newCol] instanceof Knight && board[newRow][newCol].getColor() != color) {
+                    return false;
+                }
+            }
         }
-        if (col > 0 && row < 6 && !board[row + 2][col - 1].getColor().equals(color) && board[row + 2][col - 1] instanceof Knight){
-            return false;
-        }
-        //north
-        if (col > 0 && row > 1 && !board[row - 2][col - 1].getColor().equals(color) && board[row - 2][col - 1] instanceof Knight){
-            return false;
-        }
-        if (col < 7 && row > 1 && !board[row - 2][col + 1].getColor().equals(color) && board[row - 2][col + 1] instanceof Knight){
-            return false;
-        }
-        
-        //east
-        if (col > 1 && row < 7 && !board[row + 1][col - 2].getColor().equals(color) && board[row + 1][col - 2] instanceof Knight){
-            return false;
-        }
-        if (col > 1 && row > 0 && !board[row - 1][col - 2].getColor().equals(color) && board[row - 1][col - 2] instanceof Knight){
-            return false;
-        }
-        
-        //West
-        if (col < 6 && row < 7 && !board[row + 1][col + 2].getColor().equals(color) && board[row + 1][col + 2] instanceof Knight){
-            return false;
-        }
-        if (col < 6 && row > 0 && !board[row - 1][col + 2].getColor().equals(color) && board[row - 1][col + 2] instanceof Knight){
-            return false;
-        }
-        
         return true;
     }
-    
 }
